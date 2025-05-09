@@ -5,13 +5,26 @@ import javax.imageio.*;
 import java.io.*;
 public class Tube {
    private int xCoord;
-   private BufferedImage image;
-   private BufferedImage topImage;
+   private static BufferedImage image;
+   private static BufferedImage topImage;
    private static final int RECTWIDTH = 50;
    private int rectLength;
    private int gap;
    private int height;
-   private boolean passed = false;
+   private boolean passed;
+   private static final Random rand = new Random();
+   private Image scaledTopTube;
+   private Image scaledBottomTube;
+   private Rectangle bottomBoundingBox;
+   private Rectangle topBoundingBox;
+   static {
+      try{
+         image = ImageIO.read(new File("FlappyTube.png"));
+         topImage = ImageIO.read(new File("FlappyTubeTop.png"));
+      }catch(Exception e){
+         System.out.println("File not found");
+      }
+   }
    /**
    * This constructs a Tube class
    * @param xCoord the xCoord of the tube
@@ -22,13 +35,12 @@ public class Tube {
       this.xCoord = xCoord;
       this.height = height;
       this.gap = gap;
-      this.rectLength = new Random().nextInt(height/2)+1;
-      try{
-         this.image = ImageIO.read(new File("FlappyTube.png"));
-         this.topImage = ImageIO.read(new File("FlappyTubeTop.png"));
-      }catch(Exception e){
-         System.out.println("File not found");
-      }
+      this.passed = false;
+      this.rectLength = rand.nextInt(height/2)+1;
+      this.scaledTopTube = topImage.getScaledInstance(RECTWIDTH,rectLength,Image.SCALE_SMOOTH);
+      this.scaledBottomTube = image.getScaledInstance(RECTWIDTH,(height-rectLength-gap),Image.SCALE_SMOOTH);
+      this.topBoundingBox = new Rectangle(xCoord,0,RECTWIDTH,rectLength);
+      this.bottomBoundingBox = new Rectangle(xCoord,rectLength+gap,RECTWIDTH,height-rectLength-10);
    }
    /**
    * Draws the tube in the DrawingPanel
@@ -36,11 +48,9 @@ public class Tube {
    */
    public void drawTube(Graphics g){
       //Top tube
-      Image topTube = this.topImage.getScaledInstance(RECTWIDTH,rectLength,Image.SCALE_SMOOTH);
-      g.drawImage(topTube,xCoord,0,null);
+      g.drawImage(scaledTopTube,xCoord,0,null);
       //Bottom tube
-      Image bottomTube = this.image.getScaledInstance(RECTWIDTH,(height-rectLength-gap),Image.SCALE_SMOOTH);
-      g.drawImage(bottomTube,xCoord,rectLength+gap,null);
+      g.drawImage(scaledBottomTube,xCoord,rectLength+gap,null);
    }
    /**
    * Gets a given x coordinate of the tube
@@ -68,20 +78,21 @@ public class Tube {
    * @return the Rectangle of the top bounding box
    */
    public Rectangle getTopBoundingBox(){
-      return new Rectangle(xCoord,0,50,rectLength);
+      return this.topBoundingBox;
    }
    /**
    * Gets the bounding box of the bottom tube
    * @return the Rectangle of the bottom bounding box
    */
    public Rectangle getBottomBoundingBox(){
-      return new Rectangle(xCoord,rectLength+gap,RECTWIDTH,(height-rectLength+10));
+      return this.bottomBoundingBox;
    }
    /**
    * Updates the tubes position
    */
    public void update(){
       this.xCoord -= 5;
+      updateBoundingBox();
    }
    /**
    * Returns whether the tube has passed the Bird
@@ -96,6 +107,10 @@ public class Tube {
    */
    public void setPassed(boolean passed){
       this.passed = passed;
+   }
+   public void updateBoundingBox(){
+      this.topBoundingBox.setLocation(xCoord,0);
+      this.bottomBoundingBox.setLocation(xCoord,rectLength+gap);
    }
    
    

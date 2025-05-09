@@ -6,11 +6,20 @@ import java.io.*;
 public class Bird {
    private int xCoord;
    private int yCoord;
-   private BufferedImage image;
+   private static BufferedImage image;
    private int velocityY = 0;
    private static final int GRAVITY = 4;
    private static final int JUMP_STRENGTH = -18;
    private static final int BIRD_SIZE = 50;
+   private Rectangle boundingBox;
+   private Image scaledImage;
+   static {
+      try {
+         image = ImageIO.read(new File("FlappyBird.png"));
+      }catch(Exception e){
+         System.out.println("File not found");
+      }
+   }
    /**
    * Constructs a Bird object with two parameters
    * @param xCoord the initial x coordinate of the Bird
@@ -19,11 +28,8 @@ public class Bird {
    public Bird(int xCoord, int yCoord){
       this.xCoord = xCoord;
       this.yCoord = yCoord;
-      try{
-         this.image = ImageIO.read(new File("FlappyBird.png"));
-      }catch(Exception e){
-         System.out.println("File not found");
-      }
+      this.scaledImage = image.getScaledInstance(BIRD_SIZE,BIRD_SIZE, Image.SCALE_SMOOTH);
+      this.boundingBox = new Rectangle(xCoord,yCoord,30,30);
    }
    /**
    * Draws the Bird to the DrawingPanel
@@ -32,9 +38,7 @@ public class Bird {
    * @param yCoord the given y coordinate of the Bird
    */
    public void drawBird(Graphics g,int xCoord,int yCoord){
-      Image resized = this.image.getScaledInstance(50,50, Image.SCALE_SMOOTH);
-      g.drawImage(resized,xCoord,yCoord,null);
-     
+      g.drawImage(scaledImage,xCoord,yCoord,null);
    }
    /**
    * Retrieves the x coordinate of the Bird
@@ -69,7 +73,13 @@ public class Bird {
    * @return the bounding box of the Bird
    */
    public Rectangle getBoundingBox(){
-      return new Rectangle(xCoord,yCoord,30,30);
+      return this.boundingBox;
+   }
+   /**
+   * Updates the bounding box to the bird's current coordinates
+   */
+   public void updateBoundingBox(){
+      this.boundingBox.setLocation(xCoord,yCoord);
    }
    /**
    * Updates the Bird velocity and y coordinate
@@ -77,6 +87,7 @@ public class Bird {
    public void update(){
       velocityY += GRAVITY;
       yCoord += velocityY;
+      updateBoundingBox();
    }
    /**
    * Makes the Bird "jump"

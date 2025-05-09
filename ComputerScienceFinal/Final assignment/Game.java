@@ -30,7 +30,7 @@ public class Game implements Runnable{
     */
     public Game(int panelWidth, int panelHeight){
         this.tubes = new LinkedList<Tube>();
-        this.targetTime = 1000 / FPS;
+        this.targetTime = 10000 / FPS;
         this.bird = new Bird(100, 300);
         this.score = 0;
         this.gap = 100;
