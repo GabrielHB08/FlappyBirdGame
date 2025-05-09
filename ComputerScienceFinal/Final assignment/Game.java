@@ -8,7 +8,7 @@ public class Game implements Runnable{
     private Thread gameThread;
     private static final int MAX_TUBES = 5;
     private boolean running;
-    private static final int FPS = 60;
+    private static final int FPS = 20;
     private long targetTime;
     private Deque<Tube> tubes;
     private Bird bird;
@@ -30,7 +30,7 @@ public class Game implements Runnable{
     */
     public Game(int panelWidth, int panelHeight){
         this.tubes = new LinkedList<Tube>();
-        this.targetTime = 10000 / FPS;
+        this.targetTime = 1000 / FPS;
         this.bird = new Bird(100, 300);
         this.score = 0;
         this.gap = 100;
@@ -57,8 +57,6 @@ public class Game implements Runnable{
             gameThread.start();
         }
     }
-
-    
     @Override
     public void run(){
         Graphics g = panel.getGraphics();
@@ -95,10 +93,12 @@ public class Game implements Runnable{
     */
     public void updateGame(){
         bird.update();
+        Rectangle birdBoundingBox = bird.getBoundingBox();
+        Tube frontTube = tubes.peekFirst();
         for(Tube tube : tubes){
             tube.update();
-            if(bird.getBoundingBox().intersects(tube.getTopBoundingBox()) ||
-                    bird.getBoundingBox().intersects(tube.getBottomBoundingBox()) ||
+            if(birdBoundingBox.intersects(tube.getTopBoundingBox()) ||
+                    birdBoundingBox.intersects(tube.getBottomBoundingBox()) ||
                     bird.getY() >= this.panelHeight){
                 stopGame();
                 return;

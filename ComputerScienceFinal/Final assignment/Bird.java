@@ -8,8 +8,8 @@ public class Bird {
    private int yCoord;
    private static BufferedImage image;
    private int velocityY = 0;
-   private static final int GRAVITY = 4;
-   private static final int JUMP_STRENGTH = -18;
+   private static final int GRAVITY = 1;
+   private static final int JUMP_STRENGTH = -10;
    private static final int BIRD_SIZE = 50;
    private Rectangle boundingBox;
    private Image scaledImage;
