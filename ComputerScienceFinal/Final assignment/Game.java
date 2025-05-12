@@ -8,7 +8,7 @@ public class Game implements Runnable{
     private Thread gameThread;
     private static final int MAX_TUBES = 5;
     private boolean running;
-    private static final int FPS = 20;
+    private static final int FPS = 30;
     private long targetTime;
     private Deque<Tube> tubes;
     private Bird bird;
@@ -33,7 +33,7 @@ public class Game implements Runnable{
         this.targetTime = 1000 / FPS;
         this.bird = new Bird(100, 300);
         this.score = 0;
-        this.gap = 100;
+        this.gap = 150;
         this.tubeCount = 0;
         this.panel = new DrawingPanel(panelWidth, panelHeight);
         this.lightBlue = new Color(145,215,216);
@@ -78,9 +78,15 @@ public class Game implements Runnable{
     /**
     * Stops the game
     */
-    public void stopGame(){
-      System.out.println("Game over!");
-      System.out.println("Score: " + this.score);
+    public void stopGame(Graphics g){
+      Graphics2D g2d = (Graphics2D) g;
+      g2d.setPaint(new GradientPaint(150,250,Color.RED,450,250,Color.ORANGE));
+      g2d.fillRect(0,0,panelWidth,panelHeight);
+      g2d.setColor(Color.BLACK);
+      g2d.setFont(new Font("Arial",Font.BOLD,50));
+      g2d.drawString("Game Over!",100,200);
+      g.setFont(new Font("Arial",Font.BOLD,25));
+      g.drawString("Your score: " + this.score,150,250);
       running = false;
       try{
          this.gameThread.join();
@@ -94,13 +100,12 @@ public class Game implements Runnable{
     public void updateGame(){
         bird.update();
         Rectangle birdBoundingBox = bird.getBoundingBox();
-        Tube frontTube = tubes.peekFirst();
         for(Tube tube : tubes){
             tube.update();
             if(birdBoundingBox.intersects(tube.getTopBoundingBox()) ||
                     birdBoundingBox.intersects(tube.getBottomBoundingBox()) ||
                     bird.getY() >= this.panelHeight){
-                stopGame();
+                stopGame(this.panel.getGraphics());
                 return;
             }
             if(bird.getX() > tube.getX() + tube.getWidth() && !tube.hasPassed()){

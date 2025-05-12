@@ -91,7 +91,7 @@ public class Tube {
    * Updates the tubes position
    */
    public void update(){
-      this.xCoord -= 5;
+      this.xCoord -= 3;
       updateBoundingBox();
    }
    /**
