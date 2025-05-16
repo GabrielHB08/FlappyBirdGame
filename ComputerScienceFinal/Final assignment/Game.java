@@ -1,14 +1,12 @@
 import java.awt.event.*;
-import java.awt.image.*;
 import java.util.*;
 import java.awt.*;
-import javax.imageio.*;
 import java.io.*;
 public class Game implements Runnable{
     private Thread gameThread;
     private static final int MAX_TUBES = 5;
     private boolean running;
-    private static final int FPS = 30;
+    private static final int FPS = 40;
     private long targetTime;
     private Deque<Tube> tubes;
     private Bird bird;
@@ -22,7 +20,12 @@ public class Game implements Runnable{
     private DrawingPanel panel;
     private boolean gameOver;
     private int spacer;
-    private Color lightBlue;
+    private static final Color lightBlue = new Color(145,215,216);
+    private BirdKeyListener keyListener;
+    private Graphics g;
+    private static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
+    private static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
+    private static final Font smallFont = new Font("Arial", Font.BOLD,25);
     /**
     * Constructs a Game object with two parameters
     * @param panelWidth the width of the panel
@@ -36,14 +39,15 @@ public class Game implements Runnable{
         this.gap = 150;
         this.tubeCount = 0;
         this.panel = new DrawingPanel(panelWidth, panelHeight);
-        this.lightBlue = new Color(145,215,216);
+        this.g = panel.getGraphics();
         panel.setBackground(lightBlue);
-        this.panel.addKeyListener(new BirdKeyListener(this.bird)); 
+        this.keyListener = new BirdKeyListener(this.bird,this);
+        this.panel.addKeyListener(this.keyListener); 
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.gameOver = false;
         this.spacer = 200;
-        for(int i = 0; i < 6; i++){
+        for(int i = 0; i < 6; ++i){
             this.tubes.add(new Tube(this.panelWidth+(this.spacer*i),this.panelHeight,this.gap));
         }
     }
@@ -53,8 +57,8 @@ public class Game implements Runnable{
     public void startGame(){
         if(this.gameThread == null){
             this.gameThread = new Thread(this);
-            running = true;
-            gameThread.start();
+            this.running = true;
+            this.gameThread.start();
         }
     }
     @Override
@@ -83,16 +87,42 @@ public class Game implements Runnable{
       g2d.setPaint(new GradientPaint(150,250,Color.RED,450,250,Color.ORANGE));
       g2d.fillRect(0,0,panelWidth,panelHeight);
       g2d.setColor(Color.BLACK);
-      g2d.setFont(new Font("Arial",Font.BOLD,50));
+      g2d.setFont(gameOverFont);
       g2d.drawString("Game Over!",100,200);
-      g.setFont(new Font("Arial",Font.BOLD,25));
+      g.setFont(smallFont);
       g.drawString("Your score: " + this.score,150,250);
+      g.drawString("Press \"R\" to play again",100,300);
       running = false;
       try{
          this.gameThread.join();
       }catch(Exception e){
          System.out.println("Uh oh");
       }
+    }
+    public void resetGame(){
+      panel.getGraphics().setColor(lightBlue);
+      panel.getGraphics().fillRect(0,0,this.panelWidth,this.panelHeight);
+      this.bird = new Bird(100,300);
+      this.keyListener.setBird(this.bird);
+      this.score = 0;
+      this.gap = 150;
+      this.tubeCount = 0;
+      this.spacer = 200;
+      this.tubes.clear();
+      for(int i = 0; i < 6; ++i){
+         this.tubes.add(new Tube(this.panelWidth + (this.spacer*i),this.panelHeight,this.gap));
+      }
+      this.gameOver = false;
+      this.gameThread = new Thread(this);
+      this.running = true;
+      this.gameThread.start();
+    }
+    /**
+    * Checks if the game is over
+    * @return whether the game is over or not
+    */
+    public boolean isGameOver(){
+      return this.gameOver;
     }
     /**
     * Updates the game by checking if the game should still be running
@@ -105,7 +135,7 @@ public class Game implements Runnable{
             if(birdBoundingBox.intersects(tube.getTopBoundingBox()) ||
                     birdBoundingBox.intersects(tube.getBottomBoundingBox()) ||
                     bird.getY() >= this.panelHeight){
-                stopGame(this.panel.getGraphics());
+                stopGame(this.g);
                 return;
             }
             if(bird.getX() > tube.getX() + tube.getWidth() && !tube.hasPassed()){
@@ -136,6 +166,7 @@ public class Game implements Runnable{
     * @param g a Graphics object so you can draw
     */
     private void renderGame(Graphics g){
+        g.setFont(scoreFont);
         g.setColor(Color.BLACK);
         g.drawString("Score: " + score, 10, 10);
         bird.drawBird(g, bird.getX(), bird.getY());
