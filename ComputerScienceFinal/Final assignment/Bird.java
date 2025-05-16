@@ -13,6 +13,7 @@ public class Bird {
    private static final int BIRD_SIZE = 50;
    private Rectangle boundingBox;
    private Image scaledImage;
+   private static final int MAX_VELOCITY = -15;
    static {
       try {
          image = ImageIO.read(new File("FlappyBird.png"));
@@ -86,6 +87,9 @@ public class Bird {
    */
    public void update(){
       velocityY += GRAVITY;
+      if(velocityY < MAX_VELOCITY){
+         velocityY = MAX_VELOCITY;
+      }
       yCoord += velocityY;
       updateBoundingBox();
    }

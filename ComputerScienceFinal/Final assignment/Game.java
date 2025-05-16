@@ -14,7 +14,7 @@ public class Game implements Runnable{
     private static final int GAP_DECREASE_INTERVAL = 5;
     private int tubeCount;
     private int gap;
-    private static final int MIN_GAP = 50;
+    private static final int MIN_GAP = 55;
     private int panelWidth;
     private int panelHeight;
     private DrawingPanel panel;
@@ -26,7 +26,6 @@ public class Game implements Runnable{
     private static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
     private static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
     private static final Font smallFont = new Font("Arial", Font.BOLD,25);
-    private static final int MAX_VELOCITY = -50;
     private int bestScore;
     /**
     * Constructs a Game object with two parameters
@@ -49,7 +48,7 @@ public class Game implements Runnable{
         this.panelWidth = panelWidth;
         this.panelHeight = panelHeight;
         this.gameOver = false;
-        this.spacer = 200;
+        this.spacer = 250;
         for(int i = 0; i < 6; ++i){
             this.tubes.add(new Tube(this.panelWidth+(this.spacer*i),this.panelHeight,this.gap));
         }
@@ -84,6 +83,7 @@ public class Game implements Runnable{
     }
     /**
     * Stops the game
+    * @param g the Graphics object
     */
     public void stopGame(Graphics g){
       if(this.bestScore < this.score){
@@ -106,9 +106,12 @@ public class Game implements Runnable{
          System.out.println("Uh oh");
       }
     }
+    /**
+    * Resets the game so the user can play again
+    */
     public void resetGame(){
-      panel.getGraphics().setColor(lightBlue);
-      panel.getGraphics().fillRect(0,0,this.panelWidth,this.panelHeight);
+      g.setColor(lightBlue);
+      g.fillRect(0,0,this.panelWidth,this.panelHeight);
       this.bird = new Bird(100,300);
       this.keyListener.setBird(this.bird);
       this.score = 0;
@@ -144,13 +147,6 @@ public class Game implements Runnable{
                     bird.getY() >= this.panelHeight){
                 stopGame(this.g);
                 return;
-            }
-            if(bird.getY() < 0){
-               bird.setY(0);
-               bird.setVelocityY(0);
-            }
-            if(bird.getVelocityY() < MAX_VELOCITY){
-               bird.setVelocityY(MAX_VELOCITY);
             }
             if(bird.getX() > tube.getX() + tube.getWidth() && !tube.hasPassed()){
                 this.score++;

@@ -19,6 +19,7 @@ public class BirdKeyListener extends KeyAdapter {
    public void keyPressed(KeyEvent event) {
       int code = event.getKeyCode();
       if (code == KeyEvent.VK_SPACE) {
+         System.out.println(bird.getVelocityY());
          bird.jump();
       }else if(code == KeyEvent.VK_R && !this.game.isGameOver()){
          game.resetGame();
