@@ -39,7 +39,7 @@ public class Tube {
       this.rectLength = rand.nextInt(height/2)+1;
       this.scaledTopTube = topImage.getScaledInstance(RECTWIDTH,rectLength,Image.SCALE_SMOOTH);
       this.scaledBottomTube = image.getScaledInstance(RECTWIDTH,(height-rectLength-gap),Image.SCALE_SMOOTH);
-      this.topBoundingBox = new Rectangle(xCoord,0,RECTWIDTH,rectLength);
+      this.topBoundingBox = new Rectangle(xCoord,0,RECTWIDTH,rectLength-10);
       this.bottomBoundingBox = new Rectangle(xCoord,rectLength+gap,RECTWIDTH,height-rectLength-10);
    }
    /**
@@ -91,7 +91,7 @@ public class Tube {
    * Updates the tubes position
    */
    public void update(){
-      this.xCoord -= 3;
+      this.xCoord -= 2;
       updateBoundingBox();
    }
    /**

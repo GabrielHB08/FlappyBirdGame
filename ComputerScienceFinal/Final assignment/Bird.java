@@ -8,8 +8,8 @@ public class Bird {
    private int yCoord;
    private static BufferedImage image;
    private double velocityY = 0;
-   private static final double GRAVITY = 0.9;
-   private static final int JUMP_STRENGTH = -10;
+   private static final double GRAVITY = 0.8;
+   private static final int JUMP_STRENGTH = -16;
    private static final int BIRD_SIZE = 50;
    private Rectangle boundingBox;
    private Image scaledImage;
@@ -94,6 +94,20 @@ public class Bird {
    */
    public void jump(){
       velocityY += JUMP_STRENGTH;
+   }
+   /**
+   * Gets velocityY
+   * @return the y velocity of the Bird
+   */
+   public double getVelocityY(){
+      return this.velocityY;
+   }
+   /**
+   * Sets the y velocity of the Bird
+   * @param yVelo the y velocity of the bird
+   */
+   public void setVelocityY(int velocityY){
+      this.velocityY = velocityY;
    }
    /**
    * Gets the Bird size
