@@ -1,10 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
-
 public class BirdKeyListener extends KeyAdapter {
    private Bird bird;
    private Game game;
-
    /**
     * Constructs a KeyListener for the Bird
     * @param bird the bird object to control
@@ -14,12 +12,10 @@ public class BirdKeyListener extends KeyAdapter {
       this.bird = bird;
       this.game = game;
    }
-
    @Override
    public void keyPressed(KeyEvent event) {
       int code = event.getKeyCode();
       if (code == KeyEvent.VK_SPACE) {
-         System.out.println(bird.getVelocityY());
          bird.jump();
       }else if(code == KeyEvent.VK_R && !this.game.isGameOver()){
          game.resetGame();

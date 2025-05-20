@@ -15,42 +15,39 @@ public class Game implements Runnable{
     private int tubeCount;
     private int gap;
     private static final int MIN_GAP = 55;
-    private int panelWidth;
-    private int panelHeight;
+    private static final int PANELWIDTH = 500;
+    private static final int PANELHEIGHT = 500;
     private DrawingPanel panel;
     private boolean gameOver;
     private int spacer;
     private static final Color lightBlue = new Color(145,215,216);
     private BirdKeyListener keyListener;
-    private Graphics g;
     private static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
     private static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
     private static final Font smallFont = new Font("Arial", Font.BOLD,25);
+    public static final File highScoreFile = new File("HighScore.txt");
     private int bestScore;
     /**
     * Constructs a Game object with two parameters
-    * @param panelWidth the width of the panel
-    * @param panelHeight the height of the panel
+    * @param PANELWIDTH the width of the panel
+    * @param PANELHEIGHT the height of the panel
     */
-    public Game(int panelWidth, int panelHeight){
-        this.bestScore = 0;
-        this.tubes = new LinkedList<Tube>();
+    public Game(){
+        loadHighScore();
+        this.tubes = new ArrayDeque<Tube>();
         this.targetTime = 1000 / FPS;
         this.bird = new Bird(100, 300);
         this.score = 0;
         this.gap = 150;
         this.tubeCount = 0;
-        this.panel = new DrawingPanel(panelWidth, panelHeight);
-        this.g = panel.getGraphics();
+        this.panel = new DrawingPanel(PANELWIDTH, PANELHEIGHT);
         panel.setBackground(lightBlue);
         this.keyListener = new BirdKeyListener(this.bird,this);
         this.panel.addKeyListener(this.keyListener); 
-        this.panelWidth = panelWidth;
-        this.panelHeight = panelHeight;
         this.gameOver = false;
         this.spacer = 250;
         for(int i = 0; i < 6; ++i){
-            this.tubes.add(new Tube(this.panelWidth+(this.spacer*i),this.panelHeight,this.gap));
+            this.tubes.add(new Tube(this.PANELWIDTH+(this.spacer*i),this.PANELHEIGHT,this.gap));
         }
     }
     /**
@@ -69,10 +66,10 @@ public class Game implements Runnable{
         while(running){
             g.setColor(this.lightBlue);
             for(Tube a: tubes){
-               g.fillRect(a.getX(),0,a.getWidth(),this.panelHeight);
+               g.fillRect(a.getX(),0,a.getWidth(),this.PANELHEIGHT);
             }
             g.fillRect(bird.getX(),bird.getY(),bird.getBirdSize(),bird.getBirdSize());
-            updateGame();
+            updateGame(g);
             renderGame(g); 
             try{
                 Thread.sleep(this.targetTime);
@@ -88,14 +85,16 @@ public class Game implements Runnable{
     public void stopGame(Graphics g){
       if(this.bestScore < this.score){
          this.bestScore = this.score;
+         saveHighScore(this.score);
       }
       Graphics2D g2d = (Graphics2D) g;
       g2d.setPaint(new GradientPaint(150,250,Color.RED,450,250,Color.ORANGE));
-      g2d.fillRect(0,0,panelWidth,panelHeight);
+      g2d.fillRect(0,0,PANELWIDTH,PANELHEIGHT);
       g2d.setColor(Color.BLACK);
       g2d.setFont(gameOverFont);
       g2d.drawString("Game Over!",100,200);
       g.setFont(smallFont);
+      
       g.drawString("Your score: " + this.score,150,250);
       g.drawString("Best score: " + this.bestScore,150,275);
       g.drawString("Press \"R\" to play again",100,300);
@@ -110,8 +109,9 @@ public class Game implements Runnable{
     * Resets the game so the user can play again
     */
     public void resetGame(){
+      Graphics g = panel.getGraphics();
       g.setColor(lightBlue);
-      g.fillRect(0,0,this.panelWidth,this.panelHeight);
+      g.fillRect(0,0,this.PANELWIDTH,this.PANELHEIGHT);
       this.bird = new Bird(100,300);
       this.keyListener.setBird(this.bird);
       this.score = 0;
@@ -120,7 +120,7 @@ public class Game implements Runnable{
       this.spacer = 200;
       this.tubes.clear();
       for(int i = 0; i < 6; ++i){
-         this.tubes.add(new Tube(this.panelWidth + (this.spacer*i),this.panelHeight,this.gap));
+         this.tubes.add(new Tube(this.PANELWIDTH + (this.spacer*i),this.PANELHEIGHT,this.gap));
       }
       this.gameOver = false;
       this.gameThread = new Thread(this);
@@ -137,15 +137,15 @@ public class Game implements Runnable{
     /**
     * Updates the game by checking if the game should still be running
     */
-    public void updateGame(){
+    public void updateGame(Graphics g){
         bird.update();
         Rectangle birdBoundingBox = bird.getBoundingBox();
         for(Tube tube : tubes){
             tube.update();
             if(birdBoundingBox.intersects(tube.getTopBoundingBox()) ||
                     birdBoundingBox.intersects(tube.getBottomBoundingBox()) ||
-                    bird.getY() >= this.panelHeight){
-                stopGame(this.g);
+                    bird.getY() >= this.PANELHEIGHT){
+                stopGame(g);
                 return;
             }
             if(bird.getX() > tube.getX() + tube.getWidth() && !tube.hasPassed()){
@@ -164,12 +164,12 @@ public class Game implements Runnable{
         }
     }
     /**
-    * Adds a new tube to the ArrayList object
+    * Adds a new tube to the Deque object
     */
     private void addNewTube(){
         Tube lastTube = this.tubes.peekLast();
-        int lastXCoord = (lastTube != null) ? lastTube.getX() : panelWidth;
-        tubes.add(new Tube(lastXCoord + this.spacer, this.panelHeight, this.gap));
+        int lastXCoord = (lastTube != null) ? lastTube.getX() : PANELWIDTH;
+        tubes.add(new Tube(lastXCoord + this.spacer, this.PANELHEIGHT, this.gap));
     }
     /**
     * Renders the game by drawing objects to the DrawingPanel
@@ -182,6 +182,29 @@ public class Game implements Runnable{
         bird.drawBird(g, bird.getX(), bird.getY());
         for(Tube tube : tubes){
             tube.drawTube(g);
+        }
+    }
+    /**
+    * Reads in a high score variable
+    * @param scanner a Scanner object to parse the file
+    */
+    public void loadHighScore(){
+      try{
+         Scanner scanner = new Scanner(highScoreFile);
+         if(scanner.hasNextInt()){
+            this.bestScore = scanner.nextInt();
+         }else{
+            this.bestScore = 0;
+         }
+      }catch(Exception e){
+         System.out.println("uh oh");
+      }
+    }
+    public void saveHighScore(int highScore) {
+        try (FileWriter writer = new FileWriter("HighScore.txt")) {
+            writer.write(Integer.toString(highScore));
+        } catch (IOException e) {
+            System.out.println("Uh oh");
         }
     }
 }

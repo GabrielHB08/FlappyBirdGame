@@ -5,7 +5,7 @@ public class FlappyBird {
    * @param args console input
    */
    public static void main(String [] args){
-      Game game = new Game(500,500); 
+      Game game = new Game(); 
       game.startGame();
    }
 }
