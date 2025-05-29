@@ -158,7 +158,10 @@ public class Game implements Runnable{
                 }
             }
         }
-        tubes.removeIf(t -> t.getX() + t.getWidth() < 0);
+        Tube firstTube = tubes.peekFirst();
+        if(firstTube.getX() + firstTube.getWidth() < 0){
+            tubes.removeFirst();
+        }
         if(tubes.size() < MAX_TUBES){
             addNewTube();
         }
@@ -176,13 +179,13 @@ public class Game implements Runnable{
     * @param g a Graphics object so you can draw
     */
     private void renderGame(Graphics g){
-        g.setFont(scoreFont);
-        g.setColor(Color.BLACK);
-        g.drawString("Score: " + score, 10, 10);
         bird.drawBird(g, bird.getX(), bird.getY());
         for(Tube tube : tubes){
             tube.drawTube(g);
         }
+        g.setFont(scoreFont);
+        g.setColor(Color.BLACK);
+        g.drawString("Score: " + score, 10, 10);
     }
     /**
     * Reads in a high score variable
@@ -201,9 +204,9 @@ public class Game implements Runnable{
       }
     }
     public void saveHighScore(int highScore) {
-        try (FileWriter writer = new FileWriter("HighScore.txt")) {
-            writer.write(Integer.toString(highScore));
-        } catch (IOException e) {
+        try(PrintStream ps = new PrintStream("HighScore.txt")) {
+            ps.print(Integer.toString(highScore));
+        }catch (IOException e) {
             System.out.println("Uh oh");
         }
     }
