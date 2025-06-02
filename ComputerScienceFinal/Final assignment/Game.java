@@ -4,9 +4,9 @@ import java.awt.*;
 import java.io.*;
 public class Game implements Runnable{
     private Thread gameThread;
-    private static final int MAX_TUBES = 5;
+    public static final int MAX_TUBES = 5;
     private boolean running;
-    private static final int FPS = 50;
+    public static final int FPS = 50;
     private long targetTime;
     private Deque<Tube> tubes;
     private Bird bird;
@@ -14,23 +14,21 @@ public class Game implements Runnable{
     private static final int GAP_DECREASE_INTERVAL = 5;
     private int tubeCount;
     private int gap;
-    private static final int MIN_GAP = 55;
-    private static final int PANELWIDTH = 500;
-    private static final int PANELHEIGHT = 500;
+    public static final int MIN_GAP = 55;
+    public static final int PANELWIDTH = 500;
+    public static final int PANELHEIGHT = 500;
     private DrawingPanel panel;
     private boolean gameOver;
     private int spacer;
     private static final Color lightBlue = new Color(145,215,216);
     private BirdKeyListener keyListener;
-    private static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
-    private static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
-    private static final Font smallFont = new Font("Arial", Font.BOLD,25);
+    public static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
+    public static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
+    public static final Font smallFont = new Font("Arial", Font.BOLD,25);
     public static final File highScoreFile = new File("HighScore.txt");
     private int bestScore;
     /**
     * Constructs a Game object with two parameters
-    * @param PANELWIDTH the width of the panel
-    * @param PANELHEIGHT the height of the panel
     */
     public Game(){
         loadHighScore();
@@ -68,7 +66,7 @@ public class Game implements Runnable{
             for(Tube a: tubes){
                g.fillRect(a.getX(),0,a.getWidth(),this.PANELHEIGHT);
             }
-            g.fillRect(bird.getX(),bird.getY(),bird.getBirdSize(),bird.getBirdSize());
+            g.fillRect(bird.getX(),bird.getY(),bird.BIRD_SIZE,bird.BIRD_SIZE);
             updateGame(g);
             renderGame(g); 
             try{
@@ -136,6 +134,7 @@ public class Game implements Runnable{
     }
     /**
     * Updates the game by checking if the game should still be running
+    * @param g a Graphics object
     */
     public void updateGame(Graphics g){
         bird.update();
@@ -188,7 +187,7 @@ public class Game implements Runnable{
         g.drawString("Score: " + score, 10, 10);
     }
     /**
-    * Reads in a high score variable
+    * Reads in a high score variable from a .txt file
     * @param scanner a Scanner object to parse the file
     */
     public void loadHighScore(){
@@ -203,6 +202,10 @@ public class Game implements Runnable{
          System.out.println("uh oh");
       }
     }
+    /**
+    * Writes the high score of a player to a .txt file to save it
+    * @param highScore the high score of the player
+    */
     public void saveHighScore(int highScore) {
         try(PrintStream ps = new PrintStream("HighScore.txt")) {
             ps.print(Integer.toString(highScore));

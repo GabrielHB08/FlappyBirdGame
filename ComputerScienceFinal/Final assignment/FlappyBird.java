@@ -8,4 +8,4 @@ public class FlappyBird {
       Game game = new Game(); 
       game.startGame();
    }
-}
+} 

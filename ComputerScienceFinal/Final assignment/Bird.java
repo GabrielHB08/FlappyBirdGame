@@ -8,12 +8,12 @@ public class Bird {
    private int yCoord;
    private static BufferedImage image;
    private double velocityY = 0;
-   private static final double GRAVITY = 0.8;
-   private static final int JUMP_STRENGTH = -16;
-   private static final int BIRD_SIZE = 50;
+   public static final double GRAVITY = 0.8;
+   public static final int JUMP_STRENGTH = -16;
+   public static final int BIRD_SIZE = 50;
    private Rectangle boundingBox;
    private Image scaledImage;
-   private static final int MAX_VELOCITY = -15;
+   public static final int MAX_VELOCITY = -15;
    static {
       try {
          image = ImageIO.read(new File("FlappyBird.png"));
@@ -112,12 +112,5 @@ public class Bird {
    */
    public void setVelocityY(int velocityY){
       this.velocityY = velocityY;
-   }
-   /**
-   * Gets the Bird size
-   * @return the Bird size
-   */
-   public int getBirdSize(){
-      return BIRD_SIZE;
    }
 }
