@@ -8,17 +8,21 @@ public class Bird {
    private int yCoord;
    private static BufferedImage image;
    private double velocityY = 0;
+   /** this sets up the gravity for the game */
    public static final double GRAVITY = 0.8;
+   /** this sets up the jump strength of the bird */
    public static final int JUMP_STRENGTH = -16;
+   /** this sets up the bird size */
    public static final int BIRD_SIZE = 50;
    private Rectangle boundingBox;
    private Image scaledImage;
+   /** this sets up the max velocity that the bird can go to */
    public static final int MAX_VELOCITY = -15;
    static {
       try {
          image = ImageIO.read(new File("FlappyBird.png"));
       }catch(Exception e){
-         System.out.println("File not found");
+         e.printStackTrace();
       }
    }
    /**
@@ -30,7 +34,8 @@ public class Bird {
       this.xCoord = xCoord;
       this.yCoord = yCoord;
       this.scaledImage = image.getScaledInstance(BIRD_SIZE,BIRD_SIZE, Image.SCALE_SMOOTH);
-      this.boundingBox = new Rectangle(xCoord,yCoord,30,30);
+      //Bounding box is slightly smaller so the user has an easier time navigating the game. You're welcome.
+      this.boundingBox = new Rectangle(xCoord,yCoord,BIRD_SIZE-10,BIRD_SIZE-10);
    }
    /**
    * Draws the Bird to the DrawingPanel
@@ -108,7 +113,7 @@ public class Bird {
    }
    /**
    * Sets the y velocity of the Bird
-   * @param yVelo the y velocity of the bird
+   * @param velocityY the y velocity of the bird
    */
    public void setVelocityY(int velocityY){
       this.velocityY = velocityY;

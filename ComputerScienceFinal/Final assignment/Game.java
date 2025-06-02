@@ -4,28 +4,39 @@ import java.awt.*;
 import java.io.*;
 public class Game implements Runnable{
     private Thread gameThread;
+    /** this sets up the maximum amount of tubes that can be in the tubes Deque */
     public static final int MAX_TUBES = 5;
     private boolean running;
+    /** this sets up the FPS of the game */
     public static final int FPS = 50;
     private long targetTime;
     private Deque<Tube> tubes;
     private Bird bird;
     private int score;
-    private static final int GAP_DECREASE_INTERVAL = 5;
+    /** this sets up the interval over which the gap between tubes will decrease */
+    public static final int GAP_DECREASE_INTERVAL = 5;
     private int tubeCount;
     private int gap;
+    /** this sets up the minimum gap between tubes to ensure user has a good time. You're welcome. */
     public static final int MIN_GAP = 55;
+    /** this sets up the panel's width */
     public static final int PANELWIDTH = 500;
+    /** this sets up the panel's height */
     public static final int PANELHEIGHT = 500;
     private DrawingPanel panel;
     private boolean gameOver;
     private int spacer;
-    private static final Color lightBlue = new Color(145,215,216);
+    /** this sets up a light blue color */
+    public static final Color LIGHT_BLUE = new Color(145,215,216);
     private BirdKeyListener keyListener;
-    public static final Font scoreFont = new Font("Arial", Font.PLAIN,12);
-    public static final Font gameOverFont = new Font("Arial", Font.BOLD, 50);
-    public static final Font smallFont = new Font("Arial", Font.BOLD,25);
-    public static final File highScoreFile = new File("HighScore.txt");
+    /** this gives the parameters to display the score once the game is over */
+    public static final Font SCORE_FONT = new Font("Arial", Font.PLAIN,12);
+    /** this gives the parameters to display the "Game Over" text once the game is over */
+    public static final Font GAME_OVER_FONT = new Font("Arial", Font.BOLD, 50);
+    /** this gives the parameters for the small text once the game is over */
+    public static final Font SMALL_FONT = new Font("Arial", Font.BOLD,25);
+    /** this sets up the high score file. This will always exist */
+    public static final File HIGH_SCORE_FILE = new File("HighScore.txt");
     private int bestScore;
     /**
     * Constructs a Game object with two parameters
@@ -39,7 +50,7 @@ public class Game implements Runnable{
         this.gap = 150;
         this.tubeCount = 0;
         this.panel = new DrawingPanel(PANELWIDTH, PANELHEIGHT);
-        panel.setBackground(lightBlue);
+        panel.setBackground(LIGHT_BLUE);
         this.keyListener = new BirdKeyListener(this.bird,this);
         this.panel.addKeyListener(this.keyListener); 
         this.gameOver = false;
@@ -61,10 +72,10 @@ public class Game implements Runnable{
     @Override
     public void run(){
         Graphics g = panel.getGraphics();
+        g.setColor(this.LIGHT_BLUE);
         while(running){
-            g.setColor(this.lightBlue);
-            for(Tube a: tubes){
-               g.fillRect(a.getX(),0,a.getWidth(),this.PANELHEIGHT);
+            for(Tube tube: tubes){
+               g.fillRect(tube.getX(),0,tube.RECTWIDTH,this.PANELHEIGHT);
             }
             g.fillRect(bird.getX(),bird.getY(),bird.BIRD_SIZE,bird.BIRD_SIZE);
             updateGame(g);
@@ -72,7 +83,7 @@ public class Game implements Runnable{
             try{
                 Thread.sleep(this.targetTime);
             }catch(InterruptedException e){
-                System.out.println("Uh oh");
+                e.printStackTrace();
             }
         }
     }
@@ -89,10 +100,9 @@ public class Game implements Runnable{
       g2d.setPaint(new GradientPaint(150,250,Color.RED,450,250,Color.ORANGE));
       g2d.fillRect(0,0,PANELWIDTH,PANELHEIGHT);
       g2d.setColor(Color.BLACK);
-      g2d.setFont(gameOverFont);
+      g2d.setFont(GAME_OVER_FONT);
       g2d.drawString("Game Over!",100,200);
-      g.setFont(smallFont);
-      
+      g.setFont(SMALL_FONT);
       g.drawString("Your score: " + this.score,150,250);
       g.drawString("Best score: " + this.bestScore,150,275);
       g.drawString("Press \"R\" to play again",100,300);
@@ -100,7 +110,7 @@ public class Game implements Runnable{
       try{
          this.gameThread.join();
       }catch(Exception e){
-         System.out.println("Uh oh");
+         e.printStackTrace();
       }
     }
     /**
@@ -108,7 +118,7 @@ public class Game implements Runnable{
     */
     public void resetGame(){
       Graphics g = panel.getGraphics();
-      g.setColor(lightBlue);
+      g.setColor(LIGHT_BLUE);
       g.fillRect(0,0,this.PANELWIDTH,this.PANELHEIGHT);
       this.bird = new Bird(100,300);
       this.keyListener.setBird(this.bird);
@@ -147,7 +157,7 @@ public class Game implements Runnable{
                 stopGame(g);
                 return;
             }
-            if(bird.getX() > tube.getX() + tube.getWidth() && !tube.hasPassed()){
+            if(bird.getX() > tube.getX() + tube.RECTWIDTH && !tube.hasPassed()){
                 this.score++;
                 tube.setPassed(true);
                 this.tubeCount++;
@@ -158,7 +168,7 @@ public class Game implements Runnable{
             }
         }
         Tube firstTube = tubes.peekFirst();
-        if(firstTube.getX() + firstTube.getWidth() < 0){
+        if(firstTube.getX() + firstTube.RECTWIDTH < 0){
             tubes.removeFirst();
         }
         if(tubes.size() < MAX_TUBES){
@@ -182,7 +192,7 @@ public class Game implements Runnable{
         for(Tube tube : tubes){
             tube.drawTube(g);
         }
-        g.setFont(scoreFont);
+        g.setFont(SCORE_FONT);
         g.setColor(Color.BLACK);
         g.drawString("Score: " + score, 10, 10);
     }
@@ -192,14 +202,14 @@ public class Game implements Runnable{
     */
     public void loadHighScore(){
       try{
-         Scanner scanner = new Scanner(highScoreFile);
+         Scanner scanner = new Scanner(HIGH_SCORE_FILE);
          if(scanner.hasNextInt()){
             this.bestScore = scanner.nextInt();
          }else{
             this.bestScore = 0;
          }
       }catch(Exception e){
-         System.out.println("uh oh");
+         e.printStackTrace();
       }
     }
     /**
@@ -210,7 +220,7 @@ public class Game implements Runnable{
         try(PrintStream ps = new PrintStream("HighScore.txt")) {
             ps.print(Integer.toString(highScore));
         }catch (IOException e) {
-            System.out.println("Uh oh");
+            e.printStackTrace();
         }
     }
 }

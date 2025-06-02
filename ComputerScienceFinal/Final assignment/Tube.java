@@ -7,12 +7,14 @@ public class Tube {
    private int xCoord;
    private static BufferedImage image;
    private static BufferedImage topImage;
-   private static final int RECTWIDTH = 50;
+   /** this sets up the rectangle width */
+   public static final int RECTWIDTH = 50;
    private int rectLength;
    private int gap;
    private int height;
    private boolean passed;
-   private static final Random rand = new Random();
+   /** this sets up the random object */
+   public static final Random RAND = new Random();
    private Image scaledTopTube;
    private Image scaledBottomTube;
    private Rectangle bottomBoundingBox;
@@ -22,7 +24,7 @@ public class Tube {
          image = ImageIO.read(new File("FlappyTube.png"));
          topImage = ImageIO.read(new File("FlappyTubeTop.png"));
       }catch(Exception e){
-         System.out.println("File not found");
+         e.printStackTrace();
       }
    }
    /**
@@ -36,9 +38,10 @@ public class Tube {
       this.height = height;
       this.gap = gap;
       this.passed = false;
-      this.rectLength = rand.nextInt(height/2)+1;
+      this.rectLength = RAND.nextInt(height/2)+1;
       this.scaledTopTube = topImage.getScaledInstance(RECTWIDTH,rectLength,Image.SCALE_SMOOTH);
       this.scaledBottomTube = image.getScaledInstance(RECTWIDTH,(height-rectLength-gap),Image.SCALE_SMOOTH);
+      //Bounding boxes are slightly smaller for a better user experience. You're welcome.
       this.topBoundingBox = new Rectangle(xCoord,0,RECTWIDTH,rectLength-10);
       this.bottomBoundingBox = new Rectangle(xCoord,rectLength+gap,RECTWIDTH,height-rectLength-10);
    }
